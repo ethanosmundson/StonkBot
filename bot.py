@@ -49,7 +49,7 @@ async def help_command(ctx):
     embed.add_field(name = f'$pricetarget <symbol>', value = 'Price target consensus on a company', inline = False)
     embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three stocks', inline = False)
     embed.add_field(name = f'$recommends <symbol>', value = 'Analyst recommendations on a company', inline = False)
-    embed.add_field(name = f'$sentiment <symbol>', value = 'Overall media sentiment for a company', inline = False)
+    embed.add_field(name = f'$sentiment <symbol> <...>', value = 'Overall media sentiment for up to three companies', inline = False)
     embed.set_thumbnail(url = 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQDEylpvECg3TgpRV-zuhYzR3zLzfUNh1PaMQ&usqp=CAU')
     embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. \n\nCreated by Ethan Osmundson.')
 
@@ -97,34 +97,41 @@ async def headlines_command(ctx):
     await ctx.send(embed = embed)
     
 @bot.command(name ='sentiment')
-async def sentiment_command(ctx, symbol):
+async def sentiment_command(ctx, *symbols):
     """Overall news sentiment for a company"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    if len(symbols) > 3:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
+        await ctx.send(embed = embed)
+    else:
+        embed = fr.get_news_sentiment(symbols)
+        await ctx.send(embed = embed)
     
 @bot.command(name ='recommends')
 async def recommends_command(ctx, symbol):
     """Analyst recommendations on a company"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    embed = 'My creator has not yet implemented this function!'
+    await ctx.send(embed = embed)
     
 @bot.command(name ='pricetarget')
 async def price_target_command(ctx, symbol):
     """Price target consensus on a company"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    embed = 'My creator has not yet implemented this function!'
+    await ctx.send(embed = embed)
     
 @bot.command(name ='earnings')
 async def earnings_command(ctx, symbol):
     """Recient earnings data on a company"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    embed = 'My creator has not yet implemented this function!'
+    await ctx.send(embed = embed)
     
 @bot.command(name ='covid')
 async def covid_command(ctx, symbol):
     """Per state COVID-19 data"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    embed = 'My creator has not yet implemented this function!'
+    await ctx.send(embed = embed)
     
 
 bot.run(shared.config['discord']['token'])

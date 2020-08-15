@@ -7,7 +7,6 @@ import datetime
 from datetime import date, timedelta
 import discord
 
-RESOLUTIONS = ['1', '5', '15', '30', '60', 'D', 'W', 'M']
 API_KEY = shared.config['finnhub']['token']
 
 not_found_embed = discord.Embed( # default embed to be returned when symbol not found
@@ -18,7 +17,7 @@ def get_quote(symbol): # done
     r = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol.upper()}&token={API_KEY}')
     json = r.json()
 
-    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # makes two API calls, could be removed if needed
+    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
     json2 = r2.json()
 
     name = json2['name']
@@ -158,9 +157,52 @@ def get_market_headlines(): # done
     
     return embed
 
-def get_news_sentiment(symbol):
+def get_news_sentiment(*symbols):
+    embed = discord.Embed(
+        color = discord.Color.blurple(),
+        title = f"Media Sentiment Report"
+    )
+    
+    for symbol in symbols):
+        print(symbol)
+        r = requests.get(f'https://finnhub.io/api/v1/news-sentiment?symbol={symbol.upper()}&token={API_KEY}')
+        json = r.json()
 
-    return
+        r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Get's company name. Makes two API calls, could be removed if needed
+        json2 = r2.json()
+
+        name = json2['name']
+    
+        change = '' # compares article count to average get right comparison word
+        last_week = json['buzz']['articlesInLastWeek']
+        weekly_average = json['buzz']['weeklyAverage']
+        
+        if last_week > weekly_average:
+            change = 'more'
+        elif last_week < weekly_average:
+            change = 'fewer'
+        elif last_week == weekly_average:
+            change = 'the same number of'
+
+        bearbull = '' # compares bear to bull percent to find majority sentiment
+        bear_per = json['sentiment']['bearishPercent']
+        bull_per = json['sentiment']['bullishPercent']
+
+        if bear_per > bull_per:
+            bearbull = 'more bearish'
+        elif bear_per < bull_per:
+            bearbull = 'more bearish'
+        elif bear_per == bull_per:
+            bearbull = 'neither bearish nor bullish'
+
+        if math.abs(bear_per - bull_per) < 0.05: # if percents are close add slightly
+            bearbull = 'slightly ' + bearbull
+
+        embed.add_field(name = f'{symbol.upper()} ({name})', value = f'{name} had {change} articles in the news last week compaired to their weekly average.'
+                             f'({last_week} articles last week vs. an average of {weekly_average}.) Overall, the media seems to be {bearbull} on {name} ({bear_per}% of articles were bearish vs. {bull_per} being bullish).'
+                        )
+
+    return embed
 
 def get_recommendations(symbol):
 
