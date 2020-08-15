@@ -35,7 +35,7 @@ def get_company_info(symbol):
     json = r.json()
     
     if json == {}:
-         return "Stock symbol not found."
+        return "Stock symbol not found."
 
     location = json['country']
     if location == 'US': # fixes awkward grammar
