@@ -39,21 +39,19 @@ async def help_command(ctx):
         title = 'StonkBot Help'
     )
 
-    
-    embed.add_field(name = f'$info <symbol>', value = 'Company information such as sector, headquarters, and more', inline = False)
-    embed.add_field(name = f'$companynews <symbol>', value = 'Recent news on a company', inline = False)
+    embed.add_field(name = f'$conews <symbol>', value = "Today's news on a company", inline = False)
     embed.add_field(name = f'$covid <state>', value = 'COVID-19 data per US state', inline = False)
     embed.add_field(name = f'$earnings <symbol>', value = 'Recient earnings data on a company', inline = False)
-    embed.add_field(name = f'$fin <symbol>', value = 'Financial data incuding margin, P/E ratio, and more', inline = False)
-    embed.add_field(name = f'$headlines <symbol>', value = 'Top market headlines', inline = False)
+    embed.add_field(name = f'$fin <symbol>', value = 'Financial data incuding margins, P/E ratio, and more', inline = False)
+    embed.add_field(name = f'$headlines', value = "Today's top three news headlines", inline = False)
     embed.add_field(name = f'$help', value = 'Sends this help message', inline = False)
+    embed.add_field(name = f'$info <symbol>', value = 'Company information such as sector, headquarters, market cap, and more', inline = False)
     embed.add_field(name = f'$pricetarget <symbol>', value = 'Price target consensus on a company', inline = False)
-    embed.add_field(name = f'$quote <symbol>', value = 'Daily price information on the stock', inline = False)
+    embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three stocks', inline = False)
     embed.add_field(name = f'$recommends <symbol>', value = 'Analyst recommendations on a company', inline = False)
-    embed.add_field(name = f'$sentiment <symbol>', value = 'Overall news sentiment for a company', inline = False)
+    embed.add_field(name = f'$sentiment <symbol>', value = 'Overall media sentiment for a company', inline = False)
     embed.set_thumbnail(url = 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQDEylpvECg3TgpRV-zuhYzR3zLzfUNh1PaMQ&usqp=CAU')
-    embed.set_author(name = 'Created by Ethan Osmundson')
-    embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss.')
+    embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. \n\nCreated by Ethan Osmundson.')
 
 
     await ctx.send('Check your DMs!')
@@ -61,34 +59,42 @@ async def help_command(ctx):
     await channel.send(embed=embed)
 
 @bot.command(name ='quote')
-async def quote_command(ctx, symbol): #TODO: allow multiple stocks
-    """24h stock quote for symbol"""
-    response = fr.get_quote(symbol)
-    await ctx.send(response)
+async def quote_command(ctx, *symbols): #TODO: allow multiple stocks
+    """Stock quote for up to three symbols"""
+    if len(symbols) > 3:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
+        await ctx.send(embed = embed)
+    else:
+        for symbol in symbols: 
+            embed = fr.get_quote(symbol)
+            await ctx.send(embed = embed)
 
 @bot.command(name ='fin')
 async def fin_command(ctx, symbol):
     """Financial data incuding margin, P/E ratio, and more"""
-    response = fr.get_financials(symbol)
-    await ctx.send(response)
+    embed = fr.get_financials(symbol)
+    await ctx.send(embed = embed)
 
 @bot.command(name ='info')
 async def info_command(ctx, symbol):
     """Company information such as sector, headquarters, and more"""
-    response = fr.get_company_info(symbol)
-    await ctx.send(response)
+    embed = fr.get_company_info(symbol)
+    await ctx.send(embed = embed)
 
-@bot.command(name = "companynews")
+@bot.command(name = "conews")
 async def companynews_command(ctx, symbol):
-    """Recent news on company"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    """Today's news on company"""
+    embed = fr.get_company_news(symbol)
+    await ctx.send(embed = embed)
     
 @bot.command(name ='headlines')
-async def headlines_command(ctx, symbol):
+async def headlines_command(ctx):
     """Top market headlines"""
-    response = 'My creator has not yet implemented this function!'
-    await ctx.send(response)
+    embed = fr.get_market_headlines()
+    await ctx.send(embed = embed)
     
 @bot.command(name ='sentiment')
 async def sentiment_command(ctx, symbol):
