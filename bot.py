@@ -14,16 +14,16 @@ with open ('config.yaml') as file: # loading config yaml file
         print(e)
         sys.exit(1)
 
-    print(shared.config)
+    # print(shared.config)
 
 import finnhub_request as fr
 
-load_dotenv() # not sure what this does
-TOKEN = os.getenv('DISCORD TOKEN')
+# load_dotenv() # not sure if this is needed
+# TOKEN = os.getenv('DISCORD TOKEN')
 
-description = 'StonkBot - A Python Discord bot providing stock prices, financials, and alerts.\nCreated by Ethan Osmundson.\nhttps://github.com/ethanosmundson/StonkBot'
+description = 'StonkBot - A Python Discord bot providing stock prices, financials, and alerts. Market data from Finnhub.io.\nCreated by Ethan Osmundson using Discord.py.\nhttps://github.com/ethanosmundson/StonkBot'
 bot = commands.Bot(command_prefix = '$', description = description)
-bot.remove_command('help')
+bot.remove_command('help') # allows help command to be overwritten
 
 @bot.event
 async def on_ready():
@@ -50,7 +50,7 @@ async def help_command(ctx):
     embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three companies', inline = False)
     embed.add_field(name = f'$recommends <symbol>', value = 'Analyst recommendations on a company', inline = False)
     embed.add_field(name = f'$senti <symbol> <...>', value = 'Overall media sentiment for up to three companies', inline = False)
-    embed.set_thumbnail(url = 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQDEylpvECg3TgpRV-zuhYzR3zLzfUNh1PaMQ&usqp=CAU')
+    embed.set_thumbnail(url = 'https://cdn.discordapp.com/attachments/743997950648385598/744332473860620468/avatar.jpg')
     embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io.\n\nCreated by Ethan Osmundson using Discord.py.')
 
 

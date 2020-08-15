@@ -37,10 +37,10 @@ def get_quote(symbol): # done
         title = f"Price Information for {symbol.upper()} ({name})"
     )
     
-    embed.add_field(name = 'Current Price', value =f"{json['c']}", inline = False)
-    embed.add_field(name = 'Open Price', value =f"{json['o']}", inline = False)
-    embed.add_field(name = 'Daily High', value =f"{json['h']}", inline = False)
-    embed.add_field(name = 'Daily Low', value =f"{json['l']}", inline = False)
+    embed.add_field(name = 'Current Price', value =f"{round(json['c'], 2)}", inline = False)
+    embed.add_field(name = 'Open Price', value =f"{round(json['o'], 2)}", inline = False)
+    embed.add_field(name = 'Daily High', value =f"{round(json['h'], 2)}", inline = False)
+    embed.add_field(name = 'Daily Low', value =f"{round(json['l'], 2)}", inline = False)
     
     return embed
 
@@ -104,8 +104,11 @@ def get_company_info(symbol): # done
         color = discord.Color.blurple(),
     )
 
-    description = ( f"{json['name']} is a {json['finnhubIndustry'].lower()} company based in {country_name} and is listed on {exchange}."
-                    f" {json['name']} has a market capitalization of {round(json['marketCapitalization'] ,1)} million {json['currency']} with {math.trunc(json['shareOutstanding'])} million outstanding shares." 
+    market_cap = '{:,.1f}'.format(json['marketCapitalization']) # formats large numbers with commas for readability
+    out_shares = '{:,.0f}'.format(json['shareOutstanding'])
+
+    description = ( f"{json['name']} is a {json['finnhubIndustry'].lower()} company based in {country_name} and listed on {exchange}."
+                    f" {json['name']} has a market capitalization of {market_cap} million {json['currency']} with {out_shares} million outstanding shares." 
                     f" The company went public on {day} and has the ticker symbol {json['ticker']}. More information can be found at {json['weburl']}.")
     
     embed.add_field(name = f"{json['name']} ({json['ticker']})", value = description)
