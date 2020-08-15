@@ -47,11 +47,11 @@ async def help_command(ctx):
     embed.add_field(name = f'$help', value = 'Sends this help message', inline = False)
     embed.add_field(name = f'$info <symbol>', value = 'Company information such as sector, headquarters, market cap, and more', inline = False)
     embed.add_field(name = f'$pricetarget <symbol>', value = 'Price target consensus on a company', inline = False)
-    embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three stocks', inline = False)
+    embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three companies', inline = False)
     embed.add_field(name = f'$recommends <symbol>', value = 'Analyst recommendations on a company', inline = False)
-    embed.add_field(name = f'$sentiment <symbol> <...>', value = 'Overall media sentiment for up to three companies', inline = False)
+    embed.add_field(name = f'$senti <symbol> <...>', value = 'Overall media sentiment for up to three companies', inline = False)
     embed.set_thumbnail(url = 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQDEylpvECg3TgpRV-zuhYzR3zLzfUNh1PaMQ&usqp=CAU')
-    embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. \n\nCreated by Ethan Osmundson.')
+    embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io.\n\nCreated by Ethan Osmundson using Discord.py.')
 
 
     await ctx.send('Check your DMs!')
@@ -84,7 +84,7 @@ async def info_command(ctx, symbol):
     embed = fr.get_company_info(symbol)
     await ctx.send(embed = embed)
 
-@bot.command(name = "conews")
+@bot.command(name = 'conews')
 async def companynews_command(ctx, symbol):
     """Today's news on company"""
     embed = fr.get_company_news(symbol)
@@ -96,7 +96,7 @@ async def headlines_command(ctx):
     embed = fr.get_market_headlines()
     await ctx.send(embed = embed)
     
-@bot.command(name ='sentiment')
+@bot.command(name ='senti')
 async def sentiment_command(ctx, *symbols):
     """Overall news sentiment for a company"""
     if len(symbols) > 3:

@@ -157,19 +157,23 @@ def get_market_headlines(): # done
     
     return embed
 
-def get_news_sentiment(*symbols):
+def get_news_sentiment(symbols): # done?
     embed = discord.Embed(
         color = discord.Color.blurple(),
         title = f"Media Sentiment Report"
     )
     
-    for symbol in symbols):
+    for symbol in symbols:
         print(symbol)
         r = requests.get(f'https://finnhub.io/api/v1/news-sentiment?symbol={symbol.upper()}&token={API_KEY}')
         json = r.json()
 
         r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Get's company name. Makes two API calls, could be removed if needed
         json2 = r2.json()
+        
+        if json2 == {}:
+            embed.add_field(name = f'Stock symbol ({symbol.upper()}) not found.', value = 'Sorry about that!')
+            continue
 
         name = json2['name']
     
@@ -178,9 +182,9 @@ def get_news_sentiment(*symbols):
         weekly_average = json['buzz']['weeklyAverage']
         
         if last_week > weekly_average:
-            change = 'more'
+            change = 'MORE'
         elif last_week < weekly_average:
-            change = 'fewer'
+            change = 'FEWER'
         elif last_week == weekly_average:
             change = 'the same number of'
 
@@ -189,17 +193,17 @@ def get_news_sentiment(*symbols):
         bull_per = json['sentiment']['bullishPercent']
 
         if bear_per > bull_per:
-            bearbull = 'more bearish'
+            bearbull = 'more BEARISH'
         elif bear_per < bull_per:
-            bearbull = 'more bearish'
+            bearbull = 'more BULLISH'
         elif bear_per == bull_per:
             bearbull = 'neither bearish nor bullish'
 
-        if math.abs(bear_per - bull_per) < 0.05: # if percents are close add slightly
+        if abs(bear_per - bull_per) < 0.05: # if percents are close add slightly
             bearbull = 'slightly ' + bearbull
 
-        embed.add_field(name = f'{symbol.upper()} ({name})', value = f'{name} had {change} articles in the news last week compaired to their weekly average.'
-                             f'({last_week} articles last week vs. an average of {weekly_average}.) Overall, the media seems to be {bearbull} on {name} ({bear_per}% of articles were bearish vs. {bull_per} being bullish).'
+        embed.add_field(name =  f'{symbol.upper()} ({name})', value = f'{name} had {change} articles in the news last week compaired to their weekly average. '
+                                f'({last_week} articles last week vs. {weekly_average} on average.) \n\nOverall, the media seems to be {bearbull} on {name} ({round(bear_per, 2)}% of articles were bearish vs. {round(bull_per, 2)}% being bullish).'
                         )
 
     return embed
