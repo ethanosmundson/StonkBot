@@ -2,3 +2,4 @@ discord
 requests
 pyyaml
 pycountry
+quickchart.io

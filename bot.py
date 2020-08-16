@@ -18,9 +18,6 @@ with open ('config.yaml') as file: # loading config yaml file
 
 import finnhub_request as fr
 
-# load_dotenv() # not sure if this is needed
-# TOKEN = os.getenv('DISCORD TOKEN')
-
 description = 'StonkBot - A Python Discord bot providing stock prices, financials, (soon) alerts, and watchlists. Market data from Finnhub.io.\nCreated by Ethan Osmundson using Discord.py.\nhttps://github.com/ethanosmundson/StonkBot'
 bot = commands.Bot(command_prefix = '$', description = description)
 bot.remove_command('help') # allows help command to be overwritten
