@@ -13,17 +13,17 @@ not_found_embed = discord.Embed( # default embed to be returned when symbol not 
     color = discord.Color.blurple(),
     title = "Stock symbol not found.")
 
-def get_quote(symbols): # done
+def get_quote(symbol): # done
     r = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol.upper()}&token={API_KEY}')
     json = r.json()
 
     r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
     json2 = r2.json()
 
-    name = json2['name']
-
     if json == {}:
         return not_found_embed
+
+    name = json2['name']
     
     if json['c'] > json['o']: # sets embed color based on price 
         price_color = discord.Color.green()
@@ -174,7 +174,7 @@ def get_news_sentiment(symbols): # done
         json2 = r2.json()
         
         if json2 == {}:
-            embed.add_field(name = f'Stock symbol ({symbol.upper()}) not found.', value = 'Sorry about that!')
+            embed.add_field(name = f'{symbol.upper()} not found.', value = 'Sorry about that!')
             continue
 
         name = json2['name']
@@ -210,7 +210,7 @@ def get_news_sentiment(symbols): # done
 
     return embed
 
-def get_recommendations(symbols):
+def get_recommendations(symbols): #done
     embed = discord.Embed(
         color = discord.Color.blurple(),
         title = f"Analyst Recommendation Report"
@@ -224,7 +224,7 @@ def get_recommendations(symbols):
         json2 = r2.json()
         
         if json2 == {}:
-            embed.add_field(name = f'Stock symbol ({symbol.upper()}) not found.', value = 'Sorry about that!')
+            embed.add_field(name = f'{symbol.upper()} not found.', value = 'Sorry about that!')
             continue
 
         name = json2['name'] #TODO: two weeks back
@@ -257,8 +257,91 @@ def get_earnings(symbols):
     return
 
 def get_covid(states):
+    r = requests.get(f'https://finnhub.io/api/v1/covid19/us?token={API_KEY}')
+    json = r.json()
 
-    return
+    embed = discord.Embed(
+        color = discord.Color.blurple(),
+        title = "State-by-State COVID-19 Data"
+    ) 
+
+    postals = {
+        'AK': 'Alaska',
+        'AL': 'Alabama',
+        'AR': 'Arkansas',
+        'AZ': 'Arizona',
+        'CA': 'California',
+        'CO': 'Colorado',
+        'CT': 'Connecticut',
+        'DE': 'Delaware',
+        'FL': 'Florida',
+        'GA': 'Georgia',
+        'HI': 'Hawaii',
+        'IA': 'Iowa',
+        'ID': 'Idaho',
+        'IL': 'Illinois',
+        'IN': 'Indiana',
+        'KS': 'Kansas',
+        'KY': 'Kentucky',
+        'LA': 'Louisiana',
+        'MA': 'Massachusetts',
+        'MD': 'Maryland',
+        'ME': 'Maine',
+        'MI': 'Michigan',
+        'MN': 'Minnesota',
+        'MO': 'Missouri',
+        'MS': 'Mississippi',
+        'MT': 'Montana',
+        'NA': 'National',
+        'NC': 'North Carolina',
+        'ND': 'North Dakota',
+        'NE': 'Nebraska',
+        'NH': 'New Hampshire',
+        'NJ': 'New Jersey',
+        'NM': 'New Mexico',
+        'NV': 'Nevada',
+        'NY': 'New York',
+        'OH': 'Ohio',
+        'OK': 'Oklahoma',
+        'OR': 'Oregon',
+        'PA': 'Pennsylvania',
+        'RI': 'Rhode Island',
+        'SC': 'South Carolina',
+        'SD': 'South Dakota',
+        'TN': 'Tennessee',
+        'TX': 'Texas',
+        'UT': 'Utah',
+        'VA': 'Virginia',
+        'VT': 'Vermont',
+        'WA': 'Washington',
+        'WI': 'Wisconsin',
+        'WV': 'West Virginia',
+        'WY': 'Wyoming'
+    }
+
+    for state in states:
+        clean_state = ""
+
+        if state.upper().strip() in postals.keys():
+            clean_state = postals[state.upper().strip()]
+        elif state.title().strip() in postals.values():
+            clean_state = state.title().strip()
+        else:
+            embed.add_field(name = 'State not found.', value = 'Sorry about that!')
+            continue
+
+        value = "Couldn't find state in data. This is an issue."
+
+        for i in range(len(json)): # must loop through the JSON response because the format provided is bad
+            
+            if str(json[i]['state']) == str(clean_state):
+                value = 'Confirmed Cases: {0}\nConfirmed Deaths: {1}'.format(json[i]['case'], json[i]['death'])
+                continue
+
+        embed.add_field(name = f'{clean_state}', value = value)
+    embed.set_footer(text = 'Data from the CDC as of {0}.'.format(json[0]['updated']))
+
+    return embed
 
 #TODO: crypto support
 #TODO: technical indicator support

@@ -47,7 +47,7 @@ async def help_command(ctx, command=None):
         if command == 'conews':
             embed.add_field(name = 'Company News Command', value = '$conews <symbol>\n\n This command will provide you with the top three news headlines related to the company you enter. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'covid' or command == '$covid':
-            embed.add_field(name = 'COVID-19 Command', value = '$covid <state> <...> \n\n This command will provide state-by-state COVID-19 data. Note that the data is only avaliable for US states and a maximum of three states may be queried at a time. Enter the postal code or full name of a US state in place of <state>.')
+            embed.add_field(name = 'COVID-19 Command', value = '$covid <state> <...> \n\n This command will provide state-by-state COVID-19 data. Note that the data is only avaliable for US states (not including the District of Columbia) and a maximum of six states may be queried at a time. Enter the postal code or full name of a US state in place of <state>.')
         elif command == 'earn' or command == '$earn':
             embed.add_field(name = 'Earnings Command', value = '$earn <symbol> <...> \n\n This command will provide recient earnings data on the companies you ask for. A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'fin' or command == '$fin':
@@ -82,7 +82,7 @@ async def help_command(ctx, command=None):
         )
 
         embed.add_field(name = f'$conews <symbol>', value = "Today's news on a company", inline = False)
-        embed.add_field(name = f'$covid <state> <...>', value = 'COVID-19 data per US state on up to three companies', inline = False)
+        embed.add_field(name = f'$covid <state> <...>', value = 'COVID-19 data per US state on up to six states', inline = False)
         embed.add_field(name = f'$earn <symbol> <...>', value = 'Recient earnings data on a company on up to three companies', inline = False)
         embed.add_field(name = f'$fin <symbol> <...>', value = 'Financial data incuding margins, P/E ratio, and more on up to three companies', inline = False)
         embed.add_field(name = f'$news', value = "Today's top three news headlines", inline = False)
@@ -186,8 +186,15 @@ async def earnings_command(ctx, *symbols):
 @bot.command(name ='covid')
 async def covid_command(ctx, *states):
     """Per state COVID-19 data"""
-    embed = 'My creator has not yet implemented this function!'
-    await ctx.send(embed = embed)
+    if len(states) > 6:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many states.', value = 'Please enter a maximum of six states.')
+        await ctx.send(embed = embed)
+    else:
+        embed = fr.get_covid(states)
+        await ctx.send(embed = embed)
     
 
 bot.run(shared.config['discord']['token'])
