@@ -34,7 +34,7 @@ def get_quote(symbol): # done
 
     embed = discord.Embed(
         color = price_color,
-        title = f"Price Information for {symbol.upper()} ({name})"
+        title = f"{symbol.upper()} ({name}) Price Information"
     )
     
     embed.add_field(name = 'Current Price', value =f"{round(json['c'], 2)}", inline = False)
@@ -49,11 +49,16 @@ def get_financials(symbol): # done
     json = r.json()
     
     if json['metric'] == {}:
-        return not_found_embed        
+        return not_found_embed
+
+    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
+    json2 = r2.json()
+
+    name = json2['name']    
 
     embed = discord.Embed(
         color = discord.Color.blurple(),
-        title = f"Financials for {symbol.upper()}"
+        title = f"{symbol.upper()} ({name}) Financials"
     )
 
     embed.add_field(name = '52 Week High', value =f"{json['metric']['52WeekHigh']} on {json['metric']['52WeekHighDate']}", inline = False)
@@ -78,8 +83,6 @@ def get_company_info(symbol): # done
     r = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}')
     json = r.json()
     
-    print(json)
-
     if json == {}:
         return not_found_embed
 
@@ -111,7 +114,7 @@ def get_company_info(symbol): # done
                     f" {json['name']} has a market capitalization of {market_cap} million {json['currency']} with {out_shares} million outstanding shares." 
                     f" The company went public on {day} and has the ticker symbol {json['ticker']}. More information can be found at {json['weburl']}.")
     
-    embed.add_field(name = f"{json['name']} ({json['ticker']})", value = description)
+    embed.add_field(name = f"{json['name']}", value = description)
                 
     return embed
 
@@ -126,6 +129,11 @@ def get_company_news(symbol): # done
     if json == []:
         return not_found_embed
 
+    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
+    json2 = r2.json()
+
+    name = json2['name']
+
     if len(json) < 3:
         length = len(json)
     else:
@@ -133,14 +141,18 @@ def get_company_news(symbol): # done
 
     embed = discord.Embed(
         color = discord.Color.blurple(),
-        title = "{0} News for {1}".format(symbol.upper(), date.fromtimestamp(json[0]['datetime']).strftime("%A, %B %d, %Y"))
+        title = "{0} ({1}) News for {2}".format(symbol.upper(), name, date.fromtimestamp(json[0]['datetime']).strftime("%A, %B %d, %Y"))
     )
     
     for i in range(length):
-        embed.add_field(name = json[i]['headline'], value = json[i]['summary'] + '\n' + json[i]['url'] + '\n', inline=False)
+        summary = json[i]['summary'] # ensures value is under 1024
+        if len(summary) > 700:
+            summary = summary[:700] +'...'
+
+        embed.add_field(name = json[i]['headline'], value = summary + '\n' + json[i]['url'] + '\n', inline=False)
     
     return embed
-#TODO: react scroll
+#TODO: react scroll here
 def get_market_headlines(): # done
     r = requests.get(f'https://finnhub.io/api/v1/news?category=general&token={API_KEY}')
     json = r.json()
@@ -156,10 +168,13 @@ def get_market_headlines(): # done
     )
 
     for i in range(length):
+        summary = json[i]['summary'] # ensures value is under 1024
+        if len(summary) > 700:
+            summary = summary[:700] +'...'
         embed.add_field(name = json[i]['headline'], value = json[i]['summary'] + '\n' + json[i]['url'] + '\n', inline=False)
     
     return embed
-#TODO: react scroll
+#TODO: react scroll here
 def get_news_sentiment(symbols): # done
     embed = discord.Embed(
         color = discord.Color.blurple(),
@@ -201,7 +216,7 @@ def get_news_sentiment(symbols): # done
         elif bear_per == bull_per:
             bearbull = 'neither bearish nor bullish'
 
-        if abs(bear_per - bull_per) < 0.05: # if percents are close add slightly
+        if abs(bear_per - bull_per) < 0.05 and bearbull != 'neither bearish nor bullish': # if percents are close add slightly
             bearbull = 'slightly ' + bearbull
 
         embed.add_field(name =  f'{symbol.upper()} ({name})', value = f'{name} had {change} articles in the news last week compaired to their weekly average. '
@@ -210,7 +225,7 @@ def get_news_sentiment(symbols): # done
 
     return embed
 
-def get_recommendations(symbols): #done
+def get_recommendations(symbols): # done
     embed = discord.Embed(
         color = discord.Color.blurple(),
         title = f"Analyst Recommendation Report"
@@ -220,14 +235,14 @@ def get_recommendations(symbols): #done
         r = requests.get(f'https://finnhub.io/api/v1/stock/recommendation?symbol={symbol.upper()}&token={API_KEY}')
         json = r.json()
 
-        r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Get's company name. Makes two API calls, could be removed if needed
+        r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
         json2 = r2.json()
         
         if json2 == {}:
             embed.add_field(name = f'{symbol.upper()} not found.', value = 'Sorry about that!')
             continue
 
-        name = json2['name'] #TODO: two weeks back
+        name = json2['name']
 
         strong_buy = 0
         buy = 0
@@ -248,38 +263,71 @@ def get_recommendations(symbols): #done
     
     return embed
 
-def get_price_targets(symbols):
+def get_price_targets(symbol): # done
+    r = requests.get(f'https://finnhub.io/api/v1/stock/price-target?symbol={symbol.upper()}&token={API_KEY}')
+    json = r.json()
+
+    print(json)
+    if json == []:
+        return not_found_embed
+
+    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
+    json2 = r2.json()
+
+    name = json2['name']
+    
     embed = discord.Embed(
-        color = price_color,
-        title = "Price Targets Data"
+        color = discord.Color.blurple(),
+        title = f'{symbol.upper()} ({name}) Price Targets'
     )
 
-    for symbol in symbols:
-        r = requests.get(f'https://finnhub.io/api/v1/stock/price-target?symbol={symbol.upper()}&token={API_KEY}')
-        json = r.json()
+    embed.add_field(name = 'Target High', value = json['targetHigh'], inline = False)
+    embed.add_field(name = 'Target Median', value = json['targetMedian'], inline = False)
+    embed.add_field(name = 'Target Low', value = json['targetLow'], inline = False)
+    embed.add_field(name = 'Target Mean', value = json['targetMean'], inline = False)
 
     return embed
     
+def get_earnings(symbol): # done
+    r = requests.get(f'https://finnhub.io/api/v1/stock/earnings?symbol={symbol.upper()}&token={API_KEY}')
+    json = r.json()
 
-def get_earnings(symbols):
+    if json == []:
+        return not_found_embed
+
+    r2 = requests.get(f'https://finnhub.io/api/v1/stock/profile2?symbol={symbol.upper()}&token={API_KEY}') # Gets company name. Makes two API calls, could be removed if needed
+    json2 = r2.json()
+
+    name = json2['name']
+
     embed = discord.Embed(
-        color = price_color,
-        title = "Recient Earnings Data"
+        color = discord.Color.blurple(),
+        title = f"{symbol.upper()} ({name}) Earnings"
     )
 
-    for symbol in symbols:
-        r = requests.get(f'https://finnhub.io/api/v1/stock/earnings?symbol={symbol.upper()}&token={API_KEY}')
-        json = r.json()
+    for earn in json:
+        time_obj = time.strptime(earn['period'], '%Y-%m-%d') # convert YYY-MM-DD to nicer format
+        day = time.strftime('%B %d, %Y', time_obj)
+
+        beat_miss = ''
+        if earn['actual'] > earn['estimate']:
+            beat_miss = ':green_square:  BEAT'
+        elif earn['actual'] < earn['estimate']:
+            beat_miss = ':red_square:  MISS'
+        elif earn['actual'] == earn['estimate']:
+            beat_miss = ':white_large_square:  MEET'
+
+        embed.add_field(name = f'{day}', value = '{0} ({1} actual vs. {2} estimated)'.format(beat_miss, round(earn['actual'], 2), round(earn['estimate'], 2)), inline = False)
 
     return embed
 
-def get_covid(states):
+def get_covid(states): # done
     r = requests.get(f'https://finnhub.io/api/v1/covid19/us?token={API_KEY}')
     json = r.json()
 
     embed = discord.Embed(
         color = discord.Color.blurple(),
-        title = "State-by-State COVID-19 Data"
+        title = "COVID-19 Data"
     ) 
 
     postals = {
@@ -359,13 +407,3 @@ def get_covid(states):
     embed.set_footer(text = 'Data from the CDC as of {0}.'.format(json[0]['updated']))
 
     return embed
-
-
-#Todo List
-#TODO: react based scrolling for news 
-#TODO: add watchlists
-#TODO: add charts
-#TODO: ETF and index support
-#TODO: crypto support
-#TODO: technical indicator support
-#TODO: add price alerts

@@ -51,7 +51,7 @@ async def help_command(ctx, command=None):
         elif command == 'covid' or command == '$covid':
             embed.add_field(name = 'COVID-19 Command', value = '$covid <state> <...> \n\n This command will provide state-by-state COVID-19 data. Note that the data is only avaliable for US states (not including the District of Columbia) and a maximum of six states may be queried at a time. Enter the postal code or full name of a US state in place of <state>.')
         elif command == 'earn' or command == '$earn':
-            embed.add_field(name = 'Earnings Command', value = '$earn <symbol> <...> \n\n This command will provide recient earnings data on the companies you ask for. A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
+            embed.add_field(name = 'Earnings Command', value = '$earn <symbol> <...> \n\n This command will provide the last four quarters of earnings data on the companies request. A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'fin' or command == '$fin':
             embed.add_field(name = 'Financials Command', value = '$fin <symbol> <...> \n\n This command will provide the following financial data: 52-Week High, 52-Week Low, Price to Book (Quarterly and Annual), P/E, Normalized EPS (Annual), Quick Ratio (Annual), RoI (annual), Debt/Equity (Annual). A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'news' or command == '$news':
@@ -59,7 +59,7 @@ async def help_command(ctx, command=None):
         elif command == 'help' or command == '$help':
             embed.add_field(name = 'Help Command', value = 'This is getting confusing.')
         elif command == 'info' or command == '$info':
-            embed.add_field(name = 'Company Information Command', value = '$info <symbol> \n\n This command will provide a brief description including information on sector, location, market cap, outstanding shared, IPO date, ticker symbol, and website. Enter a stock ticker symbol in place of <symbol>.')
+            embed.add_field(name = 'Company Information Command', value = '$info <symbol> \n\n This command will provide a brief description including information on sector, location, market cap, outstanding shares, IPO date, ticker symbol, and website. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'target' or command == '$target':
             embed.add_field(name = 'Price Target Command', value = '%target <symbol> <...> \n\n This command will provide price target consensus data on a maximum of three companies. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'quote' or command == '$quote':
@@ -88,7 +88,7 @@ async def help_command(ctx, command=None):
         embed.add_field(name = f'$earn <symbol> <...>', value = 'Recient earnings data on a company on up to three companies', inline = False)
         embed.add_field(name = f'$fin <symbol> <...>', value = 'Financial data incuding margins, P/E ratio, and more on up to three companies', inline = False)
         embed.add_field(name = f'$news', value = "Today's top three news headlines", inline = False)
-        embed.add_field(name = f'$help', value = 'Sends this help message', inline = False)
+        embed.add_field(name = f'$help <command>', value = 'Sends this help message or specific information on a command', inline = False)
         embed.add_field(name = f'$info <symbol>', value = 'Company information such as sector, headquarters, market cap, and more', inline = False)
         embed.add_field(name = f'$target <symbol> <...>', value = 'Price target consensus on up to three companies', inline = False)
         embed.add_field(name = f'$quote <symbol> <...>', value = 'Daily price information on up to three companies', inline = False)
@@ -183,8 +183,9 @@ async def price_target_command(ctx, *symbols):
         embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
         await ctx.send(embed = embed)
     else:
-        embed = fr.get_price_targets(symbols)
-        await ctx.send(embed = embed)
+        for symbol in symbols:
+            embed = fr.get_price_targets(symbol)
+            await ctx.send(embed = embed)
     
 @bot.command(name ='earn')
 async def earnings_command(ctx, *symbols):
@@ -196,9 +197,10 @@ async def earnings_command(ctx, *symbols):
         embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
         await ctx.send(embed = embed)
     else:
-        embed = fr.get_earnings(symbols)
-        await ctx.send(embed = embed)
-    
+        for symbol in symbols:
+            embed = fr.get_earnings(symbol)
+            await ctx.send(embed = embed)
+        
 @bot.command(name ='covid')
 async def covid_command(ctx, *states):
     """Per state COVID-19 data"""
