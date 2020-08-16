@@ -343,5 +343,11 @@ def get_covid(states):
 
     return embed
 
+
+#Todo List
 #TODO: crypto support
 #TODO: technical indicator support
+#TODO: add watchlists
+#TODO: add charts
+#TODO: add price alerts
+#TODO: react based scrolling for news 
