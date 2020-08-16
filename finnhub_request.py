@@ -249,12 +249,29 @@ def get_recommendations(symbols): #done
     return embed
 
 def get_price_targets(symbols):
+    embed = discord.Embed(
+        color = price_color,
+        title = "Price Targets Data"
+    )
 
-    return
+    for symbol in symbols:
+        r = requests.get(f'https://finnhub.io/api/v1/stock/price-target?symbol={symbol.upper()}&token={API_KEY}')
+        json = r.json()
+
+    return embed
+    
 
 def get_earnings(symbols):
+    embed = discord.Embed(
+        color = price_color,
+        title = "Recient Earnings Data"
+    )
 
-    return
+    for symbol in symbols:
+        r = requests.get(f'https://finnhub.io/api/v1/stock/earnings?symbol={symbol.upper()}&token={API_KEY}')
+        json = r.json()
+
+    return embed
 
 def get_covid(states):
     r = requests.get(f'https://finnhub.io/api/v1/covid19/us?token={API_KEY}')
@@ -345,9 +362,10 @@ def get_covid(states):
 
 
 #Todo List
-#TODO: crypto support
-#TODO: technical indicator support
+#TODO: react based scrolling for news 
 #TODO: add watchlists
 #TODO: add charts
+#TODO: ETF and index support
+#TODO: crypto support
+#TODO: technical indicator support
 #TODO: add price alerts
-#TODO: react based scrolling for news 

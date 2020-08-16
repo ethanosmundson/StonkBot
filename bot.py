@@ -27,6 +27,8 @@ bot.remove_command('help') # allows help command to be overwritten
 
 @bot.event
 async def on_ready():
+    activity = discord.Game(name="$help for commands", type = 3)
+    await bot.change_presence(status=discord.Status.online, activity=activity)
     print(f'Logged in as {bot.user.name}!')
 
 @bot.event # will this ever print a message?
@@ -82,7 +84,7 @@ async def help_command(ctx, command=None):
         )
 
         embed.add_field(name = f'$conews <symbol>', value = "Today's news on a company", inline = False)
-        embed.add_field(name = f'$covid <state> <...>', value = 'COVID-19 data per US state on up to six states', inline = False)
+        embed.add_field(name =f'$covid <state> <...>', value = 'COVID-19 data per US state on up to six states', inline = False)
         embed.add_field(name = f'$earn <symbol> <...>', value = 'Recient earnings data on a company on up to three companies', inline = False)
         embed.add_field(name = f'$fin <symbol> <...>', value = 'Financial data incuding margins, P/E ratio, and more on up to three companies', inline = False)
         embed.add_field(name = f'$news', value = "Today's top three news headlines", inline = False)
@@ -174,14 +176,28 @@ async def recommends_command(ctx, *symbols):
 @bot.command(name ='target')
 async def price_target_command(ctx, *symbols):
     """Price target consensus on a company"""
-    embed = 'My creator has not yet implemented this function!'
-    await ctx.send(embed = embed)
+    if len(symbols) > 3:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
+        await ctx.send(embed = embed)
+    else:
+        embed = fr.get_price_targets(symbols)
+        await ctx.send(embed = embed)
     
 @bot.command(name ='earn')
 async def earnings_command(ctx, *symbols):
     """Recient earnings data on a company"""
-    embed = 'My creator has not yet implemented this function!'
-    await ctx.send(embed = embed)
+    if len(symbols) > 3:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
+        await ctx.send(embed = embed)
+    else:
+        embed = fr.get_earnings(symbols)
+        await ctx.send(embed = embed)
     
 @bot.command(name ='covid')
 async def covid_command(ctx, *states):
@@ -198,6 +214,3 @@ async def covid_command(ctx, *states):
     
 
 bot.run(shared.config['discord']['token'])
-
-#TODO: watchlists
-#TODO: price alerts
