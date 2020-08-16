@@ -29,6 +29,10 @@ bot.remove_command('help') # allows help command to be overwritten
 async def on_ready():
     print(f'Logged in as {bot.user.name}!')
 
+@bot.event # will this ever print a message?
+async def on_disconnect():
+    print(f'{bot.user.name} has disconnected!')
+
 @bot.command(name ='help')
 async def help_command(ctx, command=None):
     """A help message"""
@@ -95,7 +99,7 @@ async def help_command(ctx, command=None):
         channel = await author.create_dm()
         await channel.send(embed=embed)
 
-@bot.command(name ='quote')#TODO: allow multiple stocks
+@bot.command(name ='quote')
 async def quote_command(ctx, *symbols): 
     """Stock quote for up to three symbols"""
     if len(symbols) > 3:
@@ -109,11 +113,19 @@ async def quote_command(ctx, *symbols):
             embed = fr.get_quote(symbol)
             await ctx.send(embed = embed)
 
-@bot.command(name ='fin') #TODO: allow multiple stocks
-async def fin_command(ctx, symbol):
+@bot.command(name ='fin')
+async def fin_command(ctx, *symbols):
     """Financial data incuding margin, P/E ratio, and more"""
-    embed = fr.get_financials(symbol)
-    await ctx.send(embed = embed)
+    if len(symbols) > 3:
+        embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+        embed.add_field(name = 'Too many stocks.', value = 'Please enter a maximum of three symbols.')
+        await ctx.send(embed = embed)
+    else:
+        for symbol in symbols:
+            embed = fr.get_financials(symbol)
+            await ctx.send(embed = embed)
 
 @bot.command(name ='info') 
 async def info_command(ctx, symbol):

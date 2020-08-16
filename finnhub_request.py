@@ -13,7 +13,7 @@ not_found_embed = discord.Embed( # default embed to be returned when symbol not 
     color = discord.Color.blurple(),
     title = "Stock symbol not found.")
 
-def get_quote(symbol): # TODO: allow multiple stocks
+def get_quote(symbols): # done
     r = requests.get(f'https://finnhub.io/api/v1/quote?symbol={symbol.upper()}&token={API_KEY}')
     json = r.json()
 
@@ -41,16 +41,16 @@ def get_quote(symbol): # TODO: allow multiple stocks
     embed.add_field(name = 'Open Price', value =f"{round(json['o'], 2)}", inline = False)
     embed.add_field(name = 'Daily High', value =f"{round(json['h'], 2)}", inline = False)
     embed.add_field(name = 'Daily Low', value =f"{round(json['l'], 2)}", inline = False)
-    
+
     return embed
 
-def get_financials(symbol): # TODO: allow multiple stocks
+def get_financials(symbol): # done
     r = requests.get(f'https://finnhub.io/api/v1/stock/metric?symbol={symbol.upper()}&metric=all&token={API_KEY}')
     json = r.json()
     
     if json['metric'] == {}:
-        return not_found_embed
-    
+        return not_found_embed        
+
     embed = discord.Embed(
         color = discord.Color.blurple(),
         title = f"Financials for {symbol.upper()}"
@@ -229,8 +229,22 @@ def get_recommendations(symbols):
 
         name = json2['name'] #TODO: two weeks back
 
-        embed.add_field(name = 'Test', value = 'Rec')
-        print(len(json))
+        strong_buy = 0
+        buy = 0
+        hold = 0
+        sell = 0
+        strong_sell = 0
+
+        for i in range(14):
+            strong_buy += json[i]['strongBuy']
+            buy += json[i]['buy']
+            hold += json[i]['hold']
+            sell += json[i]['sell']
+            strong_sell += json[i]['strongSell']
+        
+        total = strong_buy + buy + hold + sell + strong_sell 
+
+        embed.add_field(name = f'{symbol.upper()} ({name})', value = f'Strong Buy: {round(strong_buy / total * 100, 1)}% \nBuy: {round(buy / total * 100, 1)}% \nHold: {round(hold / total * 100, 1)}% \nSell: {round(sell / total * 100, 1)}% \nStrong Sell: {round(strong_sell / total * 100, 1)}% \n\nTotal Opinions: {total}')
     
     return embed
 
