@@ -14,22 +14,23 @@ with open ('config.yaml') as file: # loading config yaml file
         print(e)
         sys.exit(1)
 
-    # print(shared.config)
+import charts as c
+import finnhub as fr
 
-import finnhub_request as fr
-
-description = 'StonkBot - A Python Discord bot providing stock prices, financials, (soon) alerts, and watchlists. Market data from Finnhub.io.\nCreated by Ethan Osmundson using Discord.py.\nhttps://github.com/ethanosmundson/StonkBot'
+description = 'StonkBot - A Python Discord bot providing stock prices, financials, (soon) alerts, and watchlists. Market data from Finnhub.io and charts by QuickChart.io.\nCreated by Ethan Osmundson using Discord.py.\nhttps://github.com/ethanosmundson/StonkBot'
 bot = commands.Bot(command_prefix = '$', description = description)
 bot.remove_command('help') # allows help command to be overwritten
 
 @bot.event
 async def on_ready():
+    """Runs when bot joins the server"""
     activity = discord.Game(name="$help for commands", type = 3)
     await bot.change_presence(status=discord.Status.online, activity=activity)
-    print(f'Logged in as {bot.user.name}!')
+    print(f'{bot.user.name} has logged in!')
 
-@bot.event # will this ever print a message?
+@bot.event 
 async def on_disconnect():
+    """Runs if the bot disconnects"""
     print(f'{bot.user.name} has disconnected!')
 
 @bot.command(name ='help')
@@ -65,10 +66,12 @@ async def help_command(ctx, command=None):
             embed.add_field(name = 'Recommendations Command', value = '$rec <symbol> <...> \n\n This command will provide aggregate analyst recommendation data from the last two weeks on a stock. A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
         elif command == 'sent' or command == '$sent':
             embed.add_field(name = 'Media Sentiment Command', value = '$sent <symbol> <...> \n\n This command will provide overall media sentiment data based on article frequencies and sentiment. A maximum of three companies are allowed. Enter a stock ticker symbol in place of <symbol>.')
+        elif command == 'chart' or command == '$chart':
+            embed.add_field(name = 'Chart Command', value = '$chart <symbol> <duration> \n\n This command will generate a stock price chart for a company over the period of the past day, week, month, or year. Enter a stock ticker symbol in place of <symbol> and either d, w, m, or y in place of <duration>.')
         else:
             embed.add_field(name = 'Unknown Command', value = f"I don't recognise that command ({command}). Try again?")
         embed.set_thumbnail(url = 'https://cdn.discordapp.com/attachments/743997950648385598/744332473860620468/avatar.jpg')
-        embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io.')
+        embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io and charts by QuickChart.io.')
 
         await ctx.send('Check your DMs!')
         channel = await author.create_dm()
@@ -80,6 +83,7 @@ async def help_command(ctx, command=None):
             title = 'StonkBot Help \nUse $help <command> for more info on a specific command!',
         )
 
+        embed.add_field(name = f'$chart <symbol> <duration>', value = 'Stock price charts over day, week, month, or year', inline = False)
         embed.add_field(name = f'$conews <symbol>', value = "Today's news on a company", inline = False)
         embed.add_field(name =f'$covid <state> <...>', value = 'COVID-19 data per US state on up to six states', inline = False)
         embed.add_field(name = f'$earn <symbol> <...>', value = 'Recient earnings data on a company on up to three companies', inline = False)
@@ -92,7 +96,7 @@ async def help_command(ctx, command=None):
         embed.add_field(name = f'$rec <symbol> <...>', value = 'Analyst recommendations on up to three companies', inline = False)
         embed.add_field(name = f'$sent <symbol> <...>', value = 'Overall media sentiment for up to three companies', inline = False)
         embed.set_thumbnail(url = 'https://cdn.discordapp.com/attachments/743997950648385598/744332473860620468/avatar.jpg')
-        embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io.')
+        embed.set_footer(text = 'DISCLAIMER: Financial data provided is not guaranteed to be accurate. The developer of this bot assumes no responsibility for financial loss. Market data from Finnhub.io and charts by QuickChart.io.')
 
         await ctx.send('Check your DMs!')
         channel = await author.create_dm()
@@ -210,6 +214,25 @@ async def covid_command(ctx, *states):
     else:
         embed = fr.get_covid(states)
         await ctx.send(embed = embed)
-    
 
+@bot.command(name ='chart')
+async def covid_command(ctx, symbol, duration):
+    """Stock price charts"""
+    embed = discord.Embed(
+        color = discord.Color.blurple(),
+        )
+    text = c.get_chart(symbol, duration)
+
+    if text == 'invalid_duration':
+        embed.add_field(name = 'Invalid Duration.', value = 'Try again?')
+        await ctx.send(embed = embed)
+    elif text == 'invalid_symbol':
+        embed.add_field(name = f'Stock symbol not found.', value = 'Sorry about that!') # TODO: more granularity
+        await ctx.send(embed = embed)
+    elif text == 'invalid_weekend':
+        embed.add_field(name = f'No data for {symbol.upper().strip()} over this duration.', value = 'Sorry about that!') # TODO: more granularity
+        await ctx.send(embed = embed)
+    else:
+        await ctx.send(text)
+    
 bot.run(shared.config['discord']['token'])
