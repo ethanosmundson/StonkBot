@@ -1,0 +1,5 @@
+# config file for settings and such
+finnhub:
+  token: ''
+discord:
+  token: ''
