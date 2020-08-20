@@ -1,5 +1,4 @@
 <div style="display: inline-block"><img align="right" src="https://cdn.discordapp.com/attachments/743997950648385598/744332473860620468/avatar.jpg" height="320" width="320">
-<h1> StonkBot <img src="https://travis-ci.org/ethanosmundson/StonkBot.svg?branch=master" /> </h1>
 </div>
 
 A Python Discord bot providing stock prices, financials, charts, (soon) alerts, and watchlists. Created by Ethan Osmundson using Discord.py with data from Finnhub.io and charts by QuickChart.io.
