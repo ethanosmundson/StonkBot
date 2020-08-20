@@ -4,6 +4,8 @@ import yaml
 import shared
 from discord.ext import commands
 
+# test
+
 with open ('config.yaml') as file: # loading config yaml file
     try:
         config = yaml.safe_load(file)
