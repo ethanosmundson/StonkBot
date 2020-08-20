@@ -1,4 +1,4 @@
-#StonkBot
+<h1> StonkBot </h1>
 <div style="display: inline-block"><img align="right" src="https://cdn.discordapp.com/attachments/743997950648385598/744332473860620468/avatar.jpg" height="320" width="320">
 </div>
 
