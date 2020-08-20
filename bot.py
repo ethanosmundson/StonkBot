@@ -131,7 +131,7 @@ async def fin_command(ctx, *symbols):
 
 @bot.command(name ='info') 
 async def info_command(ctx, symbol):
-    """Company information such as sector, headquarters, and more"""
+    """Company information such as sector, headquarters, market cap, and more"""
     embed = fr.get_company_info(symbol)
     await ctx.send(embed = embed)
 
