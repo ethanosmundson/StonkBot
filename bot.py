@@ -17,6 +17,8 @@ with open ('config.yaml') as file: # loading config yaml file
 
 import charts as c
 import finnhub as fr
+import database as db
+import watchlist as wl
 
 description = 'StonkBot - A Python Discord bot providing stock prices, financials, (soon) alerts, and watchlists. Market data from Finnhub.io and charts by QuickChart.io.\nCreated by Ethan Osmundson using Discord.py.\nhttps://github.com/ethanosmundson/StonkBot'
 bot = commands.Bot(command_prefix = '$', description = description)
@@ -237,3 +239,15 @@ async def covid_command(ctx, symbol, duration):
         await ctx.send(text)
     
 bot.run(shared.config['discord']['token'])
+
+
+#WATCHLIST COMMANDS
+'''
+$watch <optional: name> Shows all of a users watchlists if no name else shows watchlist named
+$watchcreate <name>
+$watchdelete <name>
+$watchadd <name> <symbol> <...>
+$watchremove <name> <symbol> <...>
+$
+
+'''
