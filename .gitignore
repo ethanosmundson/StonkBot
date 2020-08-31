@@ -3,3 +3,4 @@ __pycache__/charts.cpython-38.pyc
 __pycache__/finnhub.cpython-38.pyc
 __pycache__/shared.cpython-38.pyc
 config.yaml
+watchlist.db
